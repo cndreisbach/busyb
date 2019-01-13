@@ -1,0 +1,17 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+prospector = "*"
+yapf = "*"
+
+[packages]
+django = "*"
+psycopg2 = "*"
+social-auth-app-django = "*"
+python-jose = "*"
+
+[requires]
+python_version = "3.7"

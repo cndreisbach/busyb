@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>busyb</title>
+  <link rel="stylesheet" href="{% static 'css/tachyons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/busyb.css' %}">
+</head>
+<body class="sans-serif">
+  <div class="bg-washed-yellow min-vh-100">
+    <div class="pa4 center mw6 dark-gray">
+      <div class="tc">      
+        <h1 class="f-headline lh-solid">
+          <img src="{% static 'img/black_bee.png' %}">
+          busyb
+        </h1>
+        <p class="f3">a todo list that works</p>
+        <p>
+          <a href="/login/auth0">Login</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

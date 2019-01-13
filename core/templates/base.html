@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>busyb</title>
+  <link rel="stylesheet" href="{% static 'css/tachyons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/busyb.css' %}">
+</head>
+<body class="sans-serif">
+  <div class="bg-washed-yellow min-vh-100 mw9 center">
+    <header class="bg-dark-gray flex items-center light-yellow">
+      <div class="ma2"><img class="h2" src="{% static 'img/yellow_bee.png' %}"></div>
+      <div class="f3 b" style="flex-grow: 1;">
+        <a class="light-yellow link underline-hover" href="/">busyb</a>
+      </div>
+      <div class="ma2">
+        <a class="light-yellow" href="/dashboard">{{ user.username }}</a>
+        <a class="light-yellow" href="/logout">Logout</a>        
+      </div>
+    </header>
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
