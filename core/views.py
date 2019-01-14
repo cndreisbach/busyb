@@ -1,14 +1,28 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 import json
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
+from core.forms import NewTaskForm
 
-# Create your views here.
-def index(req):
-    if req.user.is_authenticated:
-        return render(req, "core/index.html")
 
-    return render(req, "core/index_logged_out.html")
+def index(request):
+    if request.user.is_authenticated:
+        return render(request, "core/index.html", {
+            "tasks": request.user.tasks,
+            "form": NewTaskForm()
+        })
+
+    return render(request, "core/index_logged_out.html")
+
+
+@require_http_methods(['POST'])
+@login_required
+def new_task(request):
+    form = NewTaskForm(request.POST)
+    if form.is_valid():
+        form.save(owner=request.user)
+    return redirect('index')
 
 
 @login_required

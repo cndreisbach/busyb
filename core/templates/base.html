@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="{% static 'css/tachyons.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/busyb.css' %}">
 </head>
-<body class="sans-serif">
-  <div class="bg-washed-yellow min-vh-100 mw9 center">
+<body class="sans-serif bg-washed-yellow">
+  <div class="mw8 center">
     <header class="bg-dark-gray flex items-center light-yellow">
       <div class="ma2"><img class="h2" src="{% static 'img/yellow_bee.png' %}"></div>
       <div class="f3 b" style="flex-grow: 1;">
@@ -21,7 +21,9 @@
         <a class="light-yellow" href="/logout">Logout</a>        
       </div>
     </header>
+    <div class="mw8 center ph2">
     {% block content %}{% endblock %}
+    </div>
   </div>
 </body>
 </html>

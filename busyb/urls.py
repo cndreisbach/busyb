@@ -19,7 +19,8 @@ from core import views as core_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', core_views.index),
+    path('', core_views.index, name='index'),
+    path('tasks/new/', core_views.new_task, name="new_task"),
     path('dashboard/', core_views.dashboard),
     path('', include('django.contrib.auth.urls')),
     path('', include('social_django.urls')),

@@ -1,1 +1,20 @@
 {% extends "base.html" %}
+
+{% block content %}
+  <div class="mv2">
+    <form method="POST" action={% url 'new_task' %}>
+      {% csrf_token %}    
+      <input type="text" class="db f3 pa2 w-100" 
+            name="task" placeholder="add a new task" maxlength="512" 
+            required autofocus
+            id="{{ form.task.id_for_label }}">
+    </form>
+  </div>
+  <div>
+    <ul>
+      {% for task in tasks.all %}
+        <li>{{task.description}}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

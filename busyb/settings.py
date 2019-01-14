@@ -38,6 +38,8 @@ INSTALLED_APPS = [
 
     # Third-party
     'social_django',
+    'crispy_forms',
+    'django_extensions',
 
     # Mine
     'core',

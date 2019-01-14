@@ -6,12 +6,16 @@ verify_ssl = true
 [dev-packages]
 prospector = "*"
 yapf = "*"
+ipython = "*"
 
 [packages]
 django = "*"
 psycopg2 = "*"
 social-auth-app-django = "*"
 python-jose = "*"
+hashids = "*"
+django-crispy-forms = "*"
+django-extensions = "*"
 
 [requires]
 python_version = "3.7"
