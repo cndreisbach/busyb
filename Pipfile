@@ -7,6 +7,8 @@ verify_ssl = true
 prospector = "*"
 yapf = "*"
 ipython = "*"
+pytest = "*"
+pytest-django = "*"
 
 [packages]
 django = "*"
@@ -16,6 +18,7 @@ python-jose = "*"
 hashids = "*"
 django-crispy-forms = "*"
 django-extensions = "*"
+werkzeug = "*"
 
 [requires]
 python_version = "3.7"
