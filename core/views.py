@@ -8,10 +8,11 @@ from core.forms import NewTaskForm
 
 def index(request):
     if request.user.is_authenticated:
-        return render(request, "core/index.html", {
-            "tasks": request.user.tasks,
-            "form": NewTaskForm()
-        })
+        return render(
+            request, "core/index.html", {
+                "tasks": request.user.tasks.visible().incomplete(),
+                "form": NewTaskForm()
+            })
 
     return render(request, "core/index_logged_out.html")
 
@@ -25,17 +26,9 @@ def new_task(request):
     return redirect('index')
 
 
+@require_http_methods(['POST'])
 @login_required
-def dashboard(request):
-    user = request.user
-    auth0user = user.social_auth.get(provider='auth0')
-    userdata = {
-        'user_id': auth0user.uid,
-        'name': user.first_name,
-        'picture': auth0user.extra_data['picture']
-    }
-
-    return render(request, 'core/dashboard.html', {
-        'auth0User': auth0user,
-        'userdata': json.dumps(userdata, indent=4)
-    })
+def mark_task_complete(request, task_id):
+    task = request.user.tasks.with_hashid(task_id)
+    task.mark_complete()
+    return redirect('index')

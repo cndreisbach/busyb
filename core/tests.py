@@ -32,8 +32,8 @@ def test_todos_for_user(user):
     task_no_show_on = Task.objects.create(description='task0', owner=user)
     task_show_on_today = Task.objects.create(
         description='task1', show_on=date.today(), owner=user)
-    task_complete = Task.objects.create(
-        description='complete', owner=user, complete=True)
+    task_complete = Task.objects.create(description='complete', owner=user)
+    task_complete.mark_complete()
     task_show_on_tomorrow = Task.objects.create(
         description='task2',
         show_on=date.today() + timedelta(days=1),

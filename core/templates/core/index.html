@@ -1,21 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="mv2">
-    <form method="POST" action={% url 'new_task' %}>
-      {% csrf_token %}
-      <input type="text" class="db f3 pa2 w-100" 
-            name="task" placeholder="add a new task" maxlength="512" 
-            required autofocus
-            aria-label="New task"
-            id="{{ form.task.id_for_label }}">
-    </form>    
+<div class="mv2">
+  <form method="POST" action="{% url 'new_task' %}">
+    {% csrf_token %}
+    <input type="text" class="db f3 pa2 w-100" name="task" placeholder="add a new task" maxlength="512" required
+      autofocus aria-label="New task" id="{{ form.task.id_for_label }}">
+  </form>
+</div>
+<div>
+  {% for task in tasks.all %}
+  <div class="pb2 mb2 bb bw1 b--light-gray">
+    <div class="flex flex-wrap">
+      <div class="w-100 w-75-ns">
+        <div class="f3 b">{{task.description}}</div>
+        <div>
+          <span>#{{ task.hashid }}</span>
+          {% if task.due_on %}
+          <span>{{ task.due_on }}</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="w-100 w-25-ns pt1 tr">
+        <form class="dib" method="POST" action="{% url 'mark_task_complete' task_id=task.hashid %}">
+          {% csrf_token %}
+          <button class="f6 br2 ph3 pv2 white bg-near-black">Mark complete</button>
+        </form>
+      </div>
+    </div>
+
   </div>
-  <div>
-    <ul>
-      {% for task in tasks.all %}
-        <li>{{task.description}}</li>
-      {% endfor %}
-    </ul>
-  </div>
+  {% endfor %}
+</div>
 {% endblock %}

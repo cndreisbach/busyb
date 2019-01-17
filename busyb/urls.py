@@ -13,15 +13,41 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, register_converter
 from core import views as core_views
+
+
+class HashidConverter:
+    regex = '[a-zA-Z0-9]{4,}'
+
+    def to_python(self, value):
+        return value
+
+    def to_url(self, value):
+        return value
+
+
+register_converter(HashidConverter, 'hashid')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', core_views.index, name='index'),
     path('tasks/new/', core_views.new_task, name="new_task"),
-    path('dashboard/', core_views.dashboard),
+    path(
+        'tasks/<hashid:task_id>/complete/',
+        core_views.mark_task_complete,
+        name="mark_task_complete"),
     path('', include('django.contrib.auth.urls')),
     path('', include('social_django.urls')),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+
+        # For django versions before 2.0:
+        # url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
