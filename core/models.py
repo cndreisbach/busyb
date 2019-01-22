@@ -24,17 +24,15 @@ class TaskQuerySet(models.QuerySet):
         return self.filter(completed_at__isnull=True)
 
     def complete(self):
-        return self.filter(completed_at__isnull=False)
+        return self.filter(completed_at__isnull=False).order_by('completed_at')
 
-    def visible(self):
-        return self.filter(
+    def current(self):
+        return self.incomplete().filter(
             Q(show_on__isnull=True) | Q(show_on__lte=date.today()))
 
-    def todos_for_user(self, user):
-        """
-        This is the standard set a user should see: for them, visible, incomplete.
-        """
-        return self.filter(owner=user).incomplete().visible()
+    def future(self):
+        return self.incomplete().filter(
+            show_on__isnull=False, show_on__gt=date.today())
 
 
 class Task(models.Model):
@@ -55,12 +53,33 @@ class Task(models.Model):
     def hashid(self):
         return hashids.encode(self.pk)
 
+    def is_complete(self):
+        return self.completed_at is not None
+
+    def is_current(self):
+        return not self.is_complete() and (self.show_on is None or
+                                           self.show_on <= date.today())
+
+    def is_future(self):
+        return not self.is_complete() and (self.show_on is not None and
+                                           self.show_on > date.today())
+
     def mark_complete(self, save=True):
         """
         Mark task as completed at current time.
         Saves completion to DB until `save` is set to False.
         """
         self.completed_at = timezone.now()
+        if save:
+            self.save()
+        return self
+
+    def mark_current(self, save=True):
+        """
+        Mark task as current by removing show_on.
+        Saves completion to DB until `save` is set to False.
+        """
+        self.show_on = None
         if save:
             self.save()
         return self

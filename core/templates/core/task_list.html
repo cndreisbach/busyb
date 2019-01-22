@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block content %}
+<div class="mv3">
+  <a href="{% url 'index' %}">Current tasks</a> |
+  <a href="{% url 'task_list_future' %}">Future tasks</a> |
+  <a href="{% url 'task_list_complete' %}">Completed tasks</a>
+</div>
+<div class="mv2">
+  <form method="POST" action="{% url 'new_task' %}">
+    {% csrf_token %}
+    <input type="text" class="db f3 pa2 w-100" name="task" placeholder="add a new task" maxlength="512" required
+      autofocus aria-label="New task" id="{{ form.task.id_for_label }}">
+  </form>
+</div>
+<div>
+  {% for task in tasks.all %}
+  <div class="pb2 mb2 bb bw1 b--light-gray">
+    <div class="flex flex-wrap">
+      <div class="w-100 w-50-ns">
+        <div class="f3 b">{{task.description}}</div>
+        <div class="f6">
+          <span class="silver pr2">#{{ task.hashid }}</span>
+
+          {% if task.show_on and task.show_on >= today %}
+          <span class="pr2">Hide until {{ task.show_on|naturalday }}</span>
+          {% endif %}
+
+          {% if task.due_on %}
+          <span class="pr2 {% if task.due_on <= today %}red{% endif %}">Due {{ task.due_on|naturalday }}</span>
+          {% endif %}
+
+          {% if task.completed_at %}
+          <span class="pr2">Completed {{ task.completed_at|naturalday }}</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="w-100 w-50-ns pt1 tr">
+        {% if task.is_future %}
+          <form class="dib" method="POST" action="{% url 'mark_task_current' task_id=task.hashid %}">
+            {% csrf_token %}
+            <button class="f6 br2 ph3 pv2 white bg-near-black">Make current</button>
+          </form>
+        {% endif %}
+        {% if not task.is_complete %}
+          <form class="dib" method="POST" action="{% url 'mark_task_complete' task_id=task.hashid %}">
+            {% csrf_token %}
+            <button class="f6 br2 ph3 pv2 white bg-near-black">Mark complete</button>
+          </form>
+        {% endif %}        
+      </div>
+    </div>
+
+  </div>
+  {% empty %}
+    <div>No tasks to show.</div>
+  {% endfor %}
+</div>
+{% endblock %}

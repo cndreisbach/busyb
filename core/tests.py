@@ -19,10 +19,10 @@ def test_task_visibility(user):
         show_on=date.today() + timedelta(days=1),
         owner=user)
 
-    visible_tasks = Task.objects.visible()
-    assert task_no_show_on in visible_tasks
-    assert task_show_on_today in visible_tasks
-    assert task_show_on_tomorrow not in visible_tasks
+    current_tasks = Task.objects.current()
+    assert task_no_show_on in current_tasks
+    assert task_show_on_today in current_tasks
+    assert task_show_on_tomorrow not in current_tasks
 
 
 @pytest.mark.django_db
@@ -41,7 +41,7 @@ def test_todos_for_user(user):
     task_other_user = Task.objects.create(
         description='other_user_task', owner=other_user)
 
-    todos = Task.objects.todos_for_user(user)
+    todos = user.tasks.current()
     assert task_no_show_on in todos
     assert task_show_on_today in todos
     assert task_show_on_tomorrow not in todos

@@ -34,11 +34,25 @@ register_converter(HashidConverter, 'hashid')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', core_views.index, name='index'),
+    path(
+        'tasks/complete/',
+        core_views.task_list,
+        kwargs={'group': 'complete'},
+        name="task_list_complete"),
+    path(
+        'tasks/future/',
+        core_views.task_list,
+        kwargs={'group': 'future'},
+        name="task_list_future"),
     path('tasks/new/', core_views.new_task, name="new_task"),
     path(
         'tasks/<hashid:task_id>/complete/',
         core_views.mark_task_complete,
         name="mark_task_complete"),
+    path(
+        'tasks/<hashid:task_id>/current/',
+        core_views.mark_task_current,
+        name="mark_task_current"),
     path('', include('django.contrib.auth.urls')),
     path('', include('social_django.urls')),
 ]

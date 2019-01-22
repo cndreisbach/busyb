@@ -1,20 +1,34 @@
-import json
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
+
 from core.forms import NewTaskForm
+from datetime import date
 
 
 def index(request):
     if request.user.is_authenticated:
-        return render(
-            request, "core/index.html", {
-                "tasks": request.user.tasks.visible().incomplete(),
-                "form": NewTaskForm()
-            })
+        return task_list(request)
 
     return render(request, "core/index_logged_out.html")
+
+
+@login_required
+def task_list(request, group=None):
+    tasks = request.user.tasks
+
+    if group == 'complete':
+        tasks = tasks.complete()
+    elif group == 'future':
+        tasks = tasks.future()
+    else:
+        tasks = tasks.current()
+
+    return render(request, "core/task_list.html", {
+        "today": date.today(),
+        "tasks": tasks,
+        "form": NewTaskForm()
+    })
 
 
 @require_http_methods(['POST'])
@@ -32,3 +46,11 @@ def mark_task_complete(request, task_id):
     task = request.user.tasks.with_hashid(task_id)
     task.mark_complete()
     return redirect('index')
+
+
+@require_http_methods(['POST'])
+@login_required
+def mark_task_current(request, task_id):
+    task = request.user.tasks.with_hashid(task_id)
+    task.mark_current()
+    return redirect('task_list_future')
