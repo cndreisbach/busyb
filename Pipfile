@@ -21,6 +21,7 @@ django-extensions = "*"
 werkzeug = "*"
 django-heroku = "*"
 django-debug-toolbar = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"
