@@ -19,6 +19,7 @@ hashids = "*"
 django-crispy-forms = "*"
 django-extensions = "*"
 werkzeug = "*"
+django-heroku = "*"
 
 [requires]
 python_version = "3.7"
