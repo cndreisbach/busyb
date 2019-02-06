@@ -38,6 +38,7 @@
         </div>
       </div>
       <div class="w-100 w-50-ns pt1 tr">
+        <a href="{% url 'edit_task' task_id=task.hashid %}">Edit task</a>
         {% if task.is_future %}
           <form class="dib" method="POST" action="{% url 'mark_task_current' task_id=task.hashid %}">
             {% csrf_token %}

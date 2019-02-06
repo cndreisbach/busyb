@@ -41,13 +41,13 @@ class Task(models.Model):
         base_manager_name = 'objects'
 
     objects = TaskQuerySet.as_manager()
-    description = models.CharField(max_length=512)
+    description = models.CharField("Task", max_length=512)
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='tasks')
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    due_on = models.DateField(null=True, blank=True)
-    show_on = models.DateField(null=True, blank=True)
+    due_on = models.DateField("Due by", null=True, blank=True)
+    show_on = models.DateField("Hide until", null=True, blank=True)
 
     @property
     def hashid(self):
