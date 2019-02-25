@@ -38,7 +38,14 @@ def edit_task(request, task_id):
     task = request.user.tasks.with_hashid(task_id)
     if task is None:
         raise Http404('No task matches the given query.')
-    form = EditTaskForm(instance=task)
+
+    if request.method == 'POST':
+        form = EditTaskForm(instance=task, data=request.POST)
+        if form.save():
+            return redirect('index')
+    else:
+        form = EditTaskForm(instance=task)
+
     return render(request, "core/edit_task.html", {"form": form})
 
 

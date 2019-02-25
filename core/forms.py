@@ -1,7 +1,5 @@
 from django import forms
 from core.models import Task
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Field, Div
 
 
 class BetterDateInput(forms.DateInput):
@@ -26,18 +24,13 @@ class EditTaskForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'pv2 measure'
-        self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', 'Save task'))
-        self.helper.layout = Layout(
-            Div(Field('description', css_class="w-100 mv2 pa2"),
-                css_class="mv2"),
-            Div(Field('due_on', css_class="w-100 mv2 pa2"), css_class="mv2"),
-            Div(Field('show_on', css_class="w-100 mv2 pa2"), css_class="mv2"),
-        )
+        self.label_suffix = None
 
     class Meta:
         model = Task
         fields = ['description', 'due_on', 'show_on']
-        widgets = {'due_on': BetterDateInput(), 'show_on': BetterDateInput()}
+        widgets = {
+            'description': forms.TextInput(attrs={'class': 'w-100 mv2 pa2 f4'}),
+            'due_on': BetterDateInput(attrs={'class': 'w-100 mv2 pa2'}),
+            'show_on': BetterDateInput(attrs={'class': 'w-100 mv2 pa2'})
+        }
