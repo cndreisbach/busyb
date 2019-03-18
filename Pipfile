@@ -13,14 +13,12 @@ pytest-django = "*"
 [packages]
 django = "*"
 psycopg2 = "*"
-social-auth-app-django = "*"
-python-jose = "*"
 hashids = "*"
-django-extensions = "*"
-werkzeug = "*"
 django-heroku = "*"
 django-debug-toolbar = "*"
 gunicorn = "*"
+django-extensions = "*"
+werkzeug = "*"
 pyyaml = ">=4.2b1"
 
 [requires]
