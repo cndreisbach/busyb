@@ -19,6 +19,7 @@ django-debug-toolbar = "*"
 gunicorn = "*"
 django-extensions = "*"
 werkzeug = "*"
+pyyaml = ">=4.2b1"
 
 [requires]
 python_version = "3.7"
