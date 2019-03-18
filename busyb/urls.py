@@ -34,6 +34,7 @@ register_converter(HashidConverter, 'hashid')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', core_views.index, name='index'),
+    path('tasks/', core_views.task_list, name='task_list'),
     path(
         'tasks/complete/',
         core_views.task_list,

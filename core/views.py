@@ -9,7 +9,7 @@ from datetime import date
 
 def index(request):
     if request.user.is_authenticated:
-        return task_list(request)
+        return redirect('task_list')
 
     return render(request, "core/index_logged_out.html")
 
@@ -42,7 +42,7 @@ def edit_task(request, task_id):
     if request.method == 'POST':
         form = EditTaskForm(instance=task, data=request.POST)
         if form.save():
-            return redirect('index')
+            return redirect('task_list')
     else:
         form = EditTaskForm(instance=task)
 
@@ -55,7 +55,7 @@ def new_task(request):
     form = NewTaskForm(request.POST)
     if form.is_valid():
         form.save(owner=request.user)
-    return redirect('index')
+    return redirect('task_list')
 
 
 @require_http_methods(['POST'])
@@ -65,7 +65,7 @@ def mark_task_complete(request, task_id):
     if task is None:
         raise Http404('No task matches the given query.')
     task.mark_complete()
-    return redirect('index')
+    return redirect('task_list')
 
 
 @require_http_methods(['POST'])
