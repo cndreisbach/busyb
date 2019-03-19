@@ -1,5 +1,5 @@
 from django import forms
-from core.models import Task
+from core.models import Task, Note
 
 
 class BetterDateInput(forms.DateInput):
@@ -34,3 +34,10 @@ class EditTaskForm(forms.ModelForm):
             'due_on': BetterDateInput(attrs={'class': 'w-100 mv2 pa2'}),
             'show_on': BetterDateInput(attrs={'class': 'w-100 mv2 pa2'})
         }
+
+
+class NoteForm(forms.ModelForm):
+
+    class Meta:
+        model = Note
+        fields = ['text']

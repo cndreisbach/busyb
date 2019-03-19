@@ -83,3 +83,10 @@ class Task(models.Model):
         if save:
             self.save()
         return self
+
+
+class Note(models.Model):
+    task = models.ForeignKey(
+        to=Task, related_name='notes', on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(null=True, auto_now_add=True)

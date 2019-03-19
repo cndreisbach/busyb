@@ -6,6 +6,7 @@
 <form method="POST" class="pv2 mw7">
   {% csrf_token %}
   {% for field in form %}
+    <!-- TODO add error messages -->    
     <div class="w-100 mv2">
     <div class="{% if field.field.required %}b{% endif %}">{{ field.label_tag }}</div>
     <div>{{ field }}</div>
@@ -15,6 +16,25 @@
     </div>
   {% endfor %}
   <button type="submit">Save task</button>
+</form>
+
+<h3>Notes</h3>
+
+{% for note in notes %}
+<div class="mv2" id="note-{{ note.id }}">
+  <div>
+    {{ note.text }}
+  </div>
+  <div>
+    {{ note.created_at }}
+  </div>
+</div>
+{% endfor %}
+
+<form method="POST" action="{% url 'new_note' task_id=task.hashid %}" class="mv3">
+  {% csrf_token %}
+  {{ note_form.as_p }}
+  <button type="submit">Add note</button>
 </form>
 
 {% endblock %}

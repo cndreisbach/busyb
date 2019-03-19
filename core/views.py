@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, resolve_url
 from django.views.decorators.http import require_http_methods
 from django.http import Http404
+from django.contrib import messages
 
-from core.forms import NewTaskForm, EditTaskForm
+from core.forms import NewTaskForm, EditTaskForm, NoteForm
 from datetime import date
 
 
@@ -36,17 +37,49 @@ def task_list(request, group=None):
 @login_required
 def edit_task(request, task_id):
     task = request.user.tasks.with_hashid(task_id)
+    print(task)
     if task is None:
         raise Http404('No task matches the given query.')
 
+    # If the form is submitted
     if request.method == 'POST':
         form = EditTaskForm(instance=task, data=request.POST)
-        if form.save():
+        if form.is_valid():
+            form.save()
             return redirect('task_list')
     else:
         form = EditTaskForm(instance=task)
 
-    return render(request, "core/edit_task.html", {"form": form})
+    note_form = NoteForm()
+
+    return render(
+        request, "core/edit_task.html", {
+            "form": form,
+            "note_form": note_form,
+            "task": task,
+            "notes": task.notes.order_by('created_at')
+        })
+
+
+@require_http_methods(['POST'])
+@login_required
+def new_note(request, task_id):
+    task = request.user.tasks.with_hashid(task_id)
+    if task is None:
+        raise Http404('No task matches the given query.')
+
+    form = NoteForm(request.POST)
+
+    if form.is_valid():
+        note = form.save(commit=False)
+        note.task = task
+        note.save()
+    else:
+        messages.error(request, 'We had a problem saving your note.')
+
+    redirect_url = resolve_url(to='edit_task', task_id=task.hashid)
+
+    return redirect(to=f"{redirect_url}#note-{note.pk}")
 
 
 @require_http_methods(['POST'])
