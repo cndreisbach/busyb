@@ -30,6 +30,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Third-party
+    'registration',
+
+    # Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
 
     # Third-party
-    'social_django',
     'django_extensions',
     'debug_toolbar',
 
@@ -94,7 +97,6 @@ DATABASES = {
 ## Authentication
 
 AUTH_USER_MODEL = 'core.User'
-SOCIAL_AUTH_USER_MODEL = 'core.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -113,24 +115,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-# Auth0
-
-AUTHENTICATION_BACKENDS = {
-    'core.auth0backend.Auth0',
-    'django.contrib.auth.backends.ModelBackend',
-}
-
-SOCIAL_AUTH_TRAILING_SLASH = False  # Remove trailing slash from routes
-SOCIAL_AUTH_AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
-SOCIAL_AUTH_AUTH0_KEY = os.getenv('AUTH0_CLIENT_ID')
-SOCIAL_AUTH_AUTH0_SECRET = os.getenv('AUTH0_CLIENT_SECRET')
-
-SOCIAL_AUTH_AUTH0_SCOPE = ['openid', 'profile']
-
-LOGIN_URL = '/login/auth0'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -151,6 +135,13 @@ STATICFILES_DIRS = [
 ]
 
 INTERNAL_IPS = ['127.0.0.1']
+
+# Registration
+
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_AUTO_LOGIN = True
+LOGIN_REDIRECT_URL = 'task_list'
+LOGOUT_REDIRECT_URL = 'index'
 
 # Configure Django App for Heroku.
 django_heroku.settings(locals())

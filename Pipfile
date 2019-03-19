@@ -20,6 +20,7 @@ gunicorn = "*"
 django-extensions = "*"
 werkzeug = "*"
 pyyaml = ">=4.2b1"
+django-registration-redux = "*"
 
 [requires]
 python_version = "3.7"

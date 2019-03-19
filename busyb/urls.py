@@ -55,8 +55,7 @@ urlpatterns = [
         core_views.mark_task_current,
         name="mark_task_current"),
     path('tasks/<hashid:task_id>/', core_views.edit_task, name="edit_task"),
-    path('', include('django.contrib.auth.urls')),
-    path('', include('social_django.urls')),
+    path('accounts/', include('registration.backends.simple.urls')),
 ]
 
 if settings.DEBUG:

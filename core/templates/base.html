@@ -17,8 +17,8 @@
         <a class="light-yellow link underline-hover" href="/">busyb</a>
       </div>
       <div class="ma2">
-        <a class="light-yellow" href="/dashboard">{{ user.username }}</a>
-        <a class="light-yellow" href="/logout">Logout</a>        
+        <a class="light-yellow" href="{% url 'task_list' %}">{{ user.username }}</a>
+        <a class="light-yellow" href="{% url 'auth_logout' %}">Logout</a>        
       </div>
     </header>
     <div class="mw8 center ph2">
