@@ -6,6 +6,21 @@ from core.hashids import hashids
 from datetime import date
 from django.utils import timezone
 
+from django.contrib.postgres.fields import CICharField
+
+
+def get_hashtags(text):
+    """
+    Split a string by spaces, then strip off punctuation, returning
+    only the words that start with a pound sign.
+    """
+    tags = set([
+        item.strip("#.,-\"\'&*^!")
+        for item in text.split()
+        if item.startswith("#")
+    ])
+    return tags
+
 
 class User(AbstractUser):
     pass
@@ -84,9 +99,41 @@ class Task(models.Model):
             self.save()
         return self
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.parse_tags()
+
+    def parse_tags(self):
+        """
+        Read through the description of the task and pull out any tags.
+        Create Tag model objects for these and associate them.
+        """
+        tags = []
+        text_tags = get_hashtags(self.description)
+        for tag_text in text_tags:
+            tag, _ = Tag.objects.get_or_create(text=tag_text)
+            tags.append(tag)
+        self.tags.set(tags)
+
 
 class Note(models.Model):
     task = models.ForeignKey(
         to=Task, related_name='notes', on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(null=True, auto_now_add=True)
+
+
+class Tag(models.Model):
+    """
+    Represents a tag or "hashtag" -- a free-form category that we
+    can add to tasks.
+
+    - Tags should be case-insensitive
+
+    """
+
+    # This should be enforced to be unique in a case-insensitive fashion
+    # but we are leaving it for now.
+    text = models.CharField(
+        max_length=100, unique=True, help_text="Tag text (must be lowercase)")
+    tasks = models.ManyToManyField(to=Task, related_name="tags")

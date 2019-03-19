@@ -45,6 +45,11 @@ urlpatterns = [
         core_views.task_list,
         kwargs={'group': 'future'},
         name="task_list_future"),
+    path(
+        'tasks/tagged/<tag>/',
+        core_views.task_list,
+        kwargs={'group': 'tagged'},
+        name="task_list_tagged"),
     path('tasks/new/', core_views.new_task, name="new_task"),
     path(
         'tasks/<hashid:task_id>/complete/',

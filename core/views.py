@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render, resolve_url
 from django.views.decorators.http import require_http_methods
 from django.http import Http404
 from django.contrib import messages
-
+from core.models import Tag
 from core.forms import NewTaskForm, EditTaskForm, NoteForm
 from datetime import date
 
@@ -16,28 +16,40 @@ def index(request):
 
 
 @login_required
-def task_list(request, group=None):
+def task_list(request, group=None, tag=None):
     tasks = request.user.tasks
+    tags = Tag.objects.filter(tasks__owner=request.user).distinct()
+
+    header_text = 'Current tasks'
 
     if group == 'complete':
         tasks = tasks.complete()
+        header_text = 'Completed tasks'
     elif group == 'future':
         tasks = tasks.future()
+        header_text = 'Future tasks'
     else:
         tasks = tasks.current()
 
-    return render(request, "core/task_list.html", {
-        "today": date.today(),
-        "tasks": tasks,
-        "form": NewTaskForm()
-    })
+    if tag is not None:
+        tasks = tasks.filter(tags__text__iexact=tag)
+        header_text += f' tagged #{tag}'
+
+    return render(
+        request, "core/task_list.html", {
+            "tags": tags,
+            "header_text": header_text,
+            "today": date.today(),
+            "tasks": tasks,
+            "form": NewTaskForm()
+        })
 
 
 @require_http_methods(['GET', 'POST'])
 @login_required
 def edit_task(request, task_id):
     task = request.user.tasks.with_hashid(task_id)
-    print(task)
+
     if task is None:
         raise Http404('No task matches the given query.')
 
