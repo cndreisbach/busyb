@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render, resolve_url
 from django.views.decorators.http import require_http_methods
 from django.http import Http404
@@ -6,6 +7,7 @@ from django.contrib import messages
 from core.models import Tag
 from core.forms import NewTaskForm, EditTaskForm, NoteForm
 from datetime import date
+from django.views.generic import View
 
 
 def index(request):
@@ -44,32 +46,39 @@ def task_list(request, group=None, tag=None):
         })
 
 
-@require_http_methods(['GET', 'POST'])
-@login_required
-def edit_task(request, task_id):
-    task = request.user.tasks.with_hashid(task_id)
+class EditTaskView(LoginRequiredMixin, View):
 
-    if task is None:
-        raise Http404('No task matches the given query.')
+    def dispatch(self, request, *args, **kwargs):
+        self.task = request.user.tasks.with_hashid(kwargs['task_id'])
+        self.note_form = NoteForm()
+        if self.task is None:
+            raise Http404('No task matches the given query.')
+        return super().dispatch(request, *args, **kwargs)
 
-    # If the form is submitted
-    if request.method == 'POST':
-        form = EditTaskForm(instance=task, data=request.POST)
+    def get(self, request, task_id):
+        form = EditTaskForm(instance=self.task)
+
+        return render(
+            request, "core/edit_task.html", {
+                "form": form,
+                "note_form": self.note_form,
+                "task": self.task,
+                "notes": self.task.notes.order_by('created_at')
+            })
+
+    def post(self, request, task_id):
+        form = EditTaskForm(instance=self.task, data=request.POST)
         if form.is_valid():
             form.save()
             return redirect('task_list')
-    else:
-        form = EditTaskForm(instance=task)
 
-    note_form = NoteForm()
-
-    return render(
-        request, "core/edit_task.html", {
-            "form": form,
-            "note_form": note_form,
-            "task": task,
-            "notes": task.notes.order_by('created_at')
-        })
+        return render(
+            request, "core/edit_task.html", {
+                "form": form,
+                "note_form": self.note_form,
+                "task": self.task,
+                "notes": self.task.notes.order_by('created_at')
+            })
 
 
 @require_http_methods(['POST'])
