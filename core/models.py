@@ -1,10 +1,12 @@
-from django.db import models
-from django.db.models import Q
+from datetime import date
 
 from django.contrib.auth.models import AbstractUser
-from core.hashids import hashids
-from datetime import date
+from django.db import models
+from django.db.models import Q
 from django.utils import timezone
+
+from core.hashids import hashids
+from core.textutils import get_hashtags
 
 
 class User(AbstractUser):
@@ -83,3 +85,42 @@ class Task(models.Model):
         if save:
             self.save()
         return self
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.parse_tags()
+
+    def parse_tags(self):
+        """
+        Read through the description of the task and pull out any tags.
+        Create Tag model objects for these and associate them.
+        """
+        tags = []
+        text_tags = get_hashtags(self.description)
+        for tag_text in text_tags:
+            tag, _ = Tag.objects.get_or_create(text=tag_text)
+            tags.append(tag)
+        self.tags.set(tags)
+
+
+class Note(models.Model):
+    task = models.ForeignKey(
+        to=Task, related_name='notes', on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(null=True, auto_now_add=True)
+
+
+class Tag(models.Model):
+    """
+    Represents a tag or "hashtag" -- a free-form category that we
+    can add to tasks.
+
+    - Tags should be case-insensitive
+
+    """
+
+    # This should be enforced to be unique in a case-insensitive fashion
+    # but we are leaving it for now.
+    text = models.CharField(
+        max_length=100, unique=True, help_text="Tag text (must be lowercase)")
+    tasks = models.ManyToManyField(to=Task, related_name="tags")

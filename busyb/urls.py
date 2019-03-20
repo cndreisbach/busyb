@@ -55,6 +55,7 @@ urlpatterns = [
         core_views.mark_task_current,
         name="mark_task_current"),
     path('tasks/<hashid:task_id>/', core_views.edit_task, name="edit_task"),
+    path('tasks/<hashid:task_id>/notes/', core_views.new_note, name="new_note"),
     path('accounts/', include('registration.backends.simple.urls')),
 ]
 

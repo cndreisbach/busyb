@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load humanize %}
+{% load hashtags %}
 
 {% block content %}
 <div class="mv3">
@@ -8,19 +9,20 @@
   <a href="{% url 'task_list_future' %}">Future tasks</a> |
   <a href="{% url 'task_list_complete' %}">Completed tasks</a>
 </div>
-<div class="mv2">
+<h1 class="mv2">{{ header_text }}</h1>
+<div class="mv3">
   <form method="POST" action="{% url 'new_task' %}">
     {% csrf_token %}
     <input type="text" class="db f3 pa2 w-100" name="task" placeholder="add a new task" maxlength="512" required
       autofocus aria-label="New task" id="{{ form.task.id_for_label }}">
   </form>
 </div>
-<div>
+<div class="mv4">
   {% for task in tasks.all %}
   <div class="pb2 mb2 bb bw1 b--light-gray">
     <div class="flex flex-wrap">
       <div class="w-100 w-50-ns">
-        <div class="f3 b">{{task.description}}</div>
+        <div class="f3 b">{{task.description|link_hashtags}}</div>
         <div class="f6">
           <span class="silver pr2">#{{ task.hashid }}</span>
 
@@ -59,4 +61,5 @@
     <div>No tasks to show.</div>
   {% endfor %}
 </div>
+
 {% endblock %}
