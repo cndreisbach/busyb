@@ -1,25 +1,12 @@
-from django.db import models
-from django.db.models import Q
+from datetime import date
 
 from django.contrib.auth.models import AbstractUser
-from core.hashids import hashids
-from datetime import date
+from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
-from django.contrib.postgres.fields import CICharField
-
-
-def get_hashtags(text):
-    """
-    Split a string by spaces, then strip off punctuation, returning
-    only the words that start with a pound sign.
-    """
-    tags = set([
-        item.strip("#.,-\"\'&*^!")
-        for item in text.split()
-        if item.startswith("#")
-    ])
-    return tags
+from core.hashids import hashids
+from core.textutils import get_hashtags
 
 
 class User(AbstractUser):

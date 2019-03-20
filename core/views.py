@@ -18,7 +18,6 @@ def index(request):
 @login_required
 def task_list(request, group=None, tag=None):
     tasks = request.user.tasks
-    tags = Tag.objects.filter(tasks__owner=request.user).distinct()
 
     header_text = 'Current tasks'
 
@@ -31,13 +30,13 @@ def task_list(request, group=None, tag=None):
     else:
         tasks = tasks.current()
 
-    if tag is not None:
+    tag = request.GET.get('tag')
+    if tag:
         tasks = tasks.filter(tags__text__iexact=tag)
         header_text += f' tagged #{tag}'
 
     return render(
         request, "core/task_list.html", {
-            "tags": tags,
             "header_text": header_text,
             "today": date.today(),
             "tasks": tasks,
