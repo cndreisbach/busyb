@@ -1,11 +1,13 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render, resolve_url
 from django.views.decorators.http import require_http_methods
 from django.http import Http404
 from django.contrib import messages
-from core.models import Tag
+from core.models import Task
 from core.forms import NewTaskForm, EditTaskForm, NoteForm
 from datetime import date
+from django.views.generic import View, ListView
 
 
 def index(request):
@@ -15,61 +17,80 @@ def index(request):
     return render(request, "core/index_logged_out.html")
 
 
-@login_required
-def task_list(request, group=None, tag=None):
-    tasks = request.user.tasks
+class TaskListView(LoginRequiredMixin, ListView):
+    model = Task
+    context_object_name = 'tasks'
+    template_name = 'core/task_list.html'
 
-    header_text = 'Current tasks'
+    def get_queryset(self):
+        self.group = self.kwargs.get('group')
+        self.tag = self.request.GET.get('tag')
 
-    if group == 'complete':
-        tasks = tasks.complete()
-        header_text = 'Completed tasks'
-    elif group == 'future':
-        tasks = tasks.future()
-        header_text = 'Future tasks'
-    else:
-        tasks = tasks.current()
+        tasks = self.request.user.tasks
+        if self.group == 'complete':
+            tasks = tasks.complete()
+        elif self.group == 'future':
+            tasks = tasks.future()
+        else:
+            tasks = tasks.current()
 
-    tag = request.GET.get('tag')
-    if tag:
-        tasks = tasks.filter(tags__text__iexact=tag)
-        header_text += f' tagged #{tag}'
+        if self.tag:
+            tasks = tasks.filter(tags__text__iexact=self.tag)
 
-    return render(
-        request, "core/task_list.html", {
-            "header_text": header_text,
-            "today": date.today(),
-            "tasks": tasks,
-            "form": NewTaskForm()
-        })
+        return tasks
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        header_text = 'Current tasks'
+
+        if self.group == 'complete':
+            header_text = 'Completed tasks'
+        elif self.group == 'future':
+            header_text = 'Future tasks'
+
+        if self.tag:
+            header_text += f' tagged #{self.tag}'
+
+        context["today"] = date.today()
+        context["form"] = NewTaskForm()
+        context["header_text"] = header_text
+        return context
 
 
-@require_http_methods(['GET', 'POST'])
-@login_required
-def edit_task(request, task_id):
-    task = request.user.tasks.with_hashid(task_id)
+class EditTaskView(LoginRequiredMixin, View):
 
-    if task is None:
-        raise Http404('No task matches the given query.')
+    def dispatch(self, request, *args, **kwargs):
+        self.task = request.user.tasks.with_hashid(kwargs['task_id'])
+        self.note_form = NoteForm()
+        if self.task is None:
+            raise Http404('No task matches the given query.')
+        return super().dispatch(request, *args, **kwargs)
 
-    # If the form is submitted
-    if request.method == 'POST':
-        form = EditTaskForm(instance=task, data=request.POST)
+    def get(self, request, task_id):
+        form = EditTaskForm(instance=self.task)
+
+        return render(
+            request, "core/edit_task.html", {
+                "form": form,
+                "note_form": self.note_form,
+                "task": self.task,
+                "notes": self.task.notes.order_by('created_at')
+            })
+
+    def post(self, request, task_id):
+        form = EditTaskForm(instance=self.task, data=request.POST)
         if form.is_valid():
             form.save()
             return redirect('task_list')
-    else:
-        form = EditTaskForm(instance=task)
 
-    note_form = NoteForm()
-
-    return render(
-        request, "core/edit_task.html", {
-            "form": form,
-            "note_form": note_form,
-            "task": task,
-            "notes": task.notes.order_by('created_at')
-        })
+        return render(
+            request, "core/edit_task.html", {
+                "form": form,
+                "note_form": self.note_form,
+                "task": self.task,
+                "notes": self.task.notes.order_by('created_at')
+            })
 
 
 @require_http_methods(['POST'])

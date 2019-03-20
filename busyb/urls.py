@@ -34,15 +34,15 @@ register_converter(HashidConverter, 'hashid')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', core_views.index, name='index'),
-    path('tasks/', core_views.task_list, name='task_list'),
+    path('tasks/', core_views.TaskListView.as_view(), name='task_list'),
     path(
         'tasks/complete/',
-        core_views.task_list,
+        core_views.TaskListView.as_view(),
         kwargs={'group': 'complete'},
         name="task_list_complete"),
     path(
         'tasks/future/',
-        core_views.task_list,
+        core_views.TaskListView.as_view(),
         kwargs={'group': 'future'},
         name="task_list_future"),
     path('tasks/new/', core_views.new_task, name="new_task"),
@@ -54,7 +54,10 @@ urlpatterns = [
         'tasks/<hashid:task_id>/current/',
         core_views.mark_task_current,
         name="mark_task_current"),
-    path('tasks/<hashid:task_id>/', core_views.edit_task, name="edit_task"),
+    path(
+        'tasks/<hashid:task_id>/',
+        core_views.EditTaskView.as_view(),
+        name="edit_task"),
     path('tasks/<hashid:task_id>/notes/', core_views.new_note, name="new_note"),
     path('accounts/', include('registration.backends.simple.urls')),
 ]
