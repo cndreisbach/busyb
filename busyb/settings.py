@@ -30,6 +30,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Mine
+    'core',
+
     # Third-party
     'registration',
 
@@ -45,9 +48,6 @@ INSTALLED_APPS = [
     # Third-party
     'django_extensions',
     'debug_toolbar',
-
-    # Mine
-    'core',
 ]
 
 MIDDLEWARE = [
@@ -142,6 +142,7 @@ ACCOUNT_ACTIVATION_DAYS = 7
 REGISTRATION_AUTO_LOGIN = True
 LOGIN_REDIRECT_URL = 'task_list'
 LOGOUT_REDIRECT_URL = 'index'
+REGISTRATION_FORM = 'core.forms.CustomRegistrationForm'
 
 # Configure Django App for Heroku.
 django_heroku.settings(locals())

@@ -49,7 +49,7 @@ class Task(models.Model):
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     due_on = models.DateField("Due by", null=True, blank=True)
-    show_on = models.DateField("Hide until", null=True, blank=True)
+    show_on = models.DateField("Hide until", null=True, blank=True, help_text="This task will not be shown under current tasks until this date.")
 
     @property
     def hashid(self):
