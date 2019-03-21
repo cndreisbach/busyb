@@ -17,11 +17,18 @@
       autofocus aria-label="New task" id="{{ form.task.id_for_label }}">
   </form>
 </div>
+<div class="mv2">
+  Sort by:
+  <a href="?sort=created_at">Created at</a> |
+  <a href="?sort=due_on">Due on</a> |
+  <a href="?sort=note_count">Number of notes</a> |
+  <a href="?sort=last_note_created_at">Last note</a>
+</div>
 <div class="mv4">
   {% for task in tasks.all %}
   <div class="pb2 mb2 bb bw1 b--light-gray">
     <div class="flex flex-wrap">
-      <div class="w-100 w-50-ns">
+      <div class="w-100 w-50-ns">        
         <div class="f3 b">{{task.description|link_hashtags}}</div>
         <div class="f6">
           <span class="silver pr2">#{{ task.hashid }}</span>
@@ -36,6 +43,16 @@
 
           {% if task.completed_at %}
           <span class="pr2">Completed {{ task.completed_at|naturalday }}</span>
+          {% endif %}
+
+          {% if task.note_count > 0 %}
+          <span class="pr2">
+            <a href="{% url 'edit_task' task_id=task.hashid %}#notes">{{task.note_count}} note{{task.note_count|pluralize}}</a>            
+          </span>
+
+          <span class="pr2">
+            Updated {{ task.last_note_created_at|naturalday }}
+          </span>
           {% endif %}
         </div>
       </div>

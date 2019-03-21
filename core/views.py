@@ -8,6 +8,7 @@ from core.models import Task
 from core.forms import NewTaskForm, EditTaskForm, NoteForm
 from datetime import date
 from django.views.generic import View, ListView
+from django.db.models import Count, Max, F
 
 
 def index(request):
@@ -25,6 +26,7 @@ class TaskListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         self.group = self.kwargs.get('group')
         self.tag = self.request.GET.get('tag')
+        self.sort = self.request.GET.get('sort')
 
         tasks = self.request.user.tasks
         if self.group == 'complete':
@@ -36,6 +38,16 @@ class TaskListView(LoginRequiredMixin, ListView):
 
         if self.tag:
             tasks = tasks.filter(tags__text__iexact=self.tag)
+
+        tasks = tasks.annotate(
+            note_count=Count('notes'),
+            last_note_created_at=Max('notes__created_at'))
+
+        if self.sort in [
+                'created_at', 'due_on', 'last_note_created_at', 'note_count'
+        ]:
+            tasks = tasks.order_by(
+                F(self.sort).desc(nulls_last=True), 'description')
 
         return tasks
 
