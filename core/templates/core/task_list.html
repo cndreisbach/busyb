@@ -2,12 +2,22 @@
 
 {% load humanize %}
 {% load hashtags %}
+{% load querystring %}
 
 {% block content %}
-<div class="mv3">
-  <a href="{% url 'index' %}">Current tasks</a> |
-  <a href="{% url 'task_list_future' %}">Future tasks</a> |
-  <a href="{% url 'task_list_complete' %}">Completed tasks</a>
+<div class="flex-l justify-between mv2">
+  <div class="mv1">
+    <a href="{% url 'index' %}">Current tasks</a> |
+    <a href="{% url 'task_list_future' %}">Future tasks</a> |
+    <a href="{% url 'task_list_complete' %}">Completed tasks</a>
+  </div>
+  <div class="mv1">
+    Sort by:
+    <a {% if sort == 'created_at' %}class="b no-underline black"{% endif %} href="{% replace_GET_param request 'sort' 'created_at' %}">Created at</a> |
+    <a {% if sort == 'due_on' %}class="b no-underline black"{% endif %} href="{% replace_GET_param request 'sort' 'due_on' %}">Due on</a> |
+    <a {% if sort == 'note_count' %}class="b no-underline black"{% endif %} href="{% replace_GET_param request 'sort' 'note_count' %}">Number of notes</a> |
+    <a {% if sort == 'last_note_created_at' %}class="b no-underline black"{% endif %} href="{% replace_GET_param request 'sort' 'last_note_created_at' %}">Last note</a>
+  </div>
 </div>
 <h1 class="mv2">{{ header_text }}</h1>
 <div class="mv3">
@@ -16,13 +26,6 @@
     <input type="text" class="db f3 pa2 w-100" name="task" placeholder="add a new task" maxlength="512" required
       autofocus aria-label="New task" id="{{ form.task.id_for_label }}">
   </form>
-</div>
-<div class="mv2">
-  Sort by:
-  <a href="?sort=created_at">Created at</a> |
-  <a href="?sort=due_on">Due on</a> |
-  <a href="?sort=note_count">Number of notes</a> |
-  <a href="?sort=last_note_created_at">Last note</a>
 </div>
 <div class="mv4">
   {% for task in tasks.all %}

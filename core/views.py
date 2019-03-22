@@ -67,6 +67,7 @@ class TaskListView(LoginRequiredMixin, ListView):
         context["today"] = date.today()
         context["form"] = NewTaskForm()
         context["header_text"] = header_text
+        context["sort"] = self.sort
         return context
 
 
