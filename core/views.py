@@ -1,14 +1,17 @@
+from datetime import date
+
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count, F, Max
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render, resolve_url
 from django.views.decorators.http import require_http_methods
-from django.http import Http404
-from django.contrib import messages
+from django.views.generic import ListView, View
+
+from core.forms import EditTaskForm, NewTaskForm, NoteForm
 from core.models import Task
-from core.forms import NewTaskForm, EditTaskForm, NoteForm
-from datetime import date
-from django.views.generic import View, ListView
-from django.db.models import Count, Max, F
+from django.core.serializers import serialize
 
 
 def index(request):
@@ -143,6 +146,10 @@ def mark_task_complete(request, task_id):
     if task is None:
         raise Http404('No task matches the given query.')
     task.mark_complete()
+
+    if request.is_ajax():
+        return JsonResponse({"complete": True})
+
     return redirect('task_list')
 
 
@@ -153,4 +160,8 @@ def mark_task_current(request, task_id):
     if task is None:
         raise Http404('No task matches the given query.')
     task.mark_current()
+
+    if request.is_ajax():
+        return JsonResponse(serialize('json', task))
+
     return redirect('task_list_future')
