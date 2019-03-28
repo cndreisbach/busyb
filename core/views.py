@@ -135,7 +135,11 @@ def new_note(request, task_id):
 def new_task(request):
     form = NewTaskForm(request.POST)
     if form.is_valid():
-        form.save(owner=request.user)
+        task = form.save(owner=request.user)
+
+        if request.is_ajax():
+            return render(request, 'partials/task.html', {"task": task})
+
     return redirect('task_list')
 
 

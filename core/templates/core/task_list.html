@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% load humanize %}
-{% load hashtags %}
 {% load querystring %}
 
 {% block content %}
@@ -21,62 +19,15 @@
 </div>
 <h1 class="mv2">{{ header_text }}</h1>
 <div class="mv3">
-  <form method="POST" action="{% url 'new_task' %}">
+  <form id="new-task-form" method="POST" action="{% url 'new_task' %}">
     {% csrf_token %}
-    <input type="text" class="db f3 pa2 w-100" name="task" placeholder="add a new task" maxlength="512" required
+    <input type="text" id="task-field" class="db f3 pa2 w-100" name="task" placeholder="add a new task" maxlength="512" required
       autofocus aria-label="New task" id="{{ form.task.id_for_label }}">
   </form>
 </div>
-<div class="mv4">
+<div class="mv4" id="task-list">
   {% for task in tasks.all %}
-  <div id="task-{{ task.hashid }}" class="pb2 mb2 bb bw1 b--light-gray">
-    <div class="flex flex-wrap">
-      <div class="w-100 w-50-ns">        
-        <div class="f3 b">{{task.description|link_hashtags}}</div>
-        <div class="f6">
-          <span class="silver pr2">#{{ task.hashid }}</span>
-
-          {% if task.show_on and task.show_on >= today %}
-          <span class="pr2">Hide until {{ task.show_on|naturalday }}</span>
-          {% endif %}
-
-          {% if task.due_on %}
-          <span class="pr2 {% if task.due_on <= today %}red{% endif %}">Due {{ task.due_on|naturalday }}</span>
-          {% endif %}
-
-          {% if task.completed_at %}
-          <span class="pr2">Completed {{ task.completed_at|naturalday }}</span>
-          {% endif %}
-
-          {% if task.note_count > 0 %}
-          <span class="pr2">
-            <a href="{% url 'edit_task' task_id=task.hashid %}#notes">{{task.note_count}} note{{task.note_count|pluralize}}</a>            
-          </span>
-
-          <span class="pr2">
-            Updated {{ task.last_note_created_at|naturalday }}
-          </span>
-          {% endif %}
-        </div>
-      </div>
-      <div class="w-100 w-50-ns pt1 tr">
-        <a href="{% url 'edit_task' task_id=task.hashid %}">Edit task</a>
-        {% if task.is_future %}
-          <form class="dib" method="POST" action="{% url 'mark_task_current' task_id=task.hashid %}">
-            {% csrf_token %}
-            <button class="f6 br2 ph3 pv2 white bg-near-black">Make current</button>
-          </form>
-        {% endif %}
-        {% if not task.is_complete %}
-          <form data-task-hashid="{{ task.hashid }}" class="mark-task-complete dib" method="POST" action="{% url 'mark_task_complete' task_id=task.hashid %}">
-            {% csrf_token %}
-            <button class="f6 br2 ph3 pv2 white bg-near-black">Mark complete</button>
-          </form>
-        {% endif %}        
-      </div>
-    </div>
-
-  </div>
+    {% include "partials/task.html" %}
   {% empty %}
     <div>No tasks to show.</div>
   {% endfor %}
