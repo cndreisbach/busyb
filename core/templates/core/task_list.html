@@ -29,7 +29,7 @@
 </div>
 <div class="mv4">
   {% for task in tasks.all %}
-  <div class="pb2 mb2 bb bw1 b--light-gray">
+  <div id="task-{{ task.hashid }}" class="pb2 mb2 bb bw1 b--light-gray">
     <div class="flex flex-wrap">
       <div class="w-100 w-50-ns">        
         <div class="f3 b">{{task.description|link_hashtags}}</div>
@@ -68,7 +68,7 @@
           </form>
         {% endif %}
         {% if not task.is_complete %}
-          <form class="dib" method="POST" action="{% url 'mark_task_complete' task_id=task.hashid %}">
+          <form data-task-hashid="{{ task.hashid }}" class="mark-task-complete dib" method="POST" action="{% url 'mark_task_complete' task_id=task.hashid %}">
             {% csrf_token %}
             <button class="f6 br2 ph3 pv2 white bg-near-black">Mark complete</button>
           </form>
