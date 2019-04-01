@@ -25,8 +25,13 @@ document.addEventListener('DOMContentLoaded', function () {
           if (!response.ok) {
             throw Error(response.statusText)
           }
-          let task = q(`#task-${form.dataset['taskHashid']}`)
-          task.remove()
+          return response.json()
+        })
+        .then(function (responseData) {
+          if (responseData.complete) {
+            let task = q(`#task-${responseData.id}`)
+            task.remove()
+          }
         })
     }
   })

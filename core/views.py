@@ -164,7 +164,7 @@ def mark_task_complete(request, task_id):
     task.mark_complete()
 
     if request.is_ajax():
-        return JsonResponse({"complete": True})
+        return JsonResponse({"id": task.hashid, "complete": True})
 
     return redirect('task_list')
 
