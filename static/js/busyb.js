@@ -36,9 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
     event.preventDefault()
     const csrftoken = Cookies.get('csrftoken')
 
-    let body = 'task='
     const taskField = q('#task-field')
-    body += encodeURIComponent(taskField.value)
+    const body = {
+      'task': taskField.value
+    }
     taskField.value = ''
 
     fetch(newTaskForm.action, {
@@ -46,9 +47,9 @@ document.addEventListener('DOMContentLoaded', function () {
       headers: {
         'X-CSRFToken': csrftoken,
         'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
       },
-      body: body
+      body: JSON.stringify(body)
     })
       .then(response => {
         if (!response.ok) {

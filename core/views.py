@@ -13,6 +13,8 @@ from core.forms import EditTaskForm, NewTaskForm, NoteForm
 from core.models import Task
 from django.core.serializers import serialize
 
+import json
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -133,7 +135,17 @@ def new_note(request, task_id):
 @require_http_methods(['POST'])
 @login_required
 def new_task(request):
-    form = NewTaskForm(request.POST)
+    # When we are sending JSON data, the request will have a header
+    # 'Content-Type' set to 'application/json'. Django reveals this
+    # header as `request.content_type`.
+    # If we sent JSON data, we want to read it from the body and turn
+    # it into a Python dictionary.
+    if request.content_type == 'application/json':
+        body = json.loads(request.body)
+    else:
+        body = request.POST
+
+    form = NewTaskForm(body)
     if form.is_valid():
         task = form.save(owner=request.user)
 
