@@ -23,7 +23,7 @@
 
           {% if task.note_count > 0 %}
           <span class="pr2">
-            <a href="{% url 'edit_task' task_id=task.hashid %}#notes">{{task.note_count}} note{{task.note_count|pluralize}}</a>            
+            <a class="task-notes-link" data-task-hashid="{{ task.hashid }}" href="{% url 'edit_task' task_id=task.hashid %}#notes">{{task.note_count}} note{{task.note_count|pluralize}}</a>            
           </span>
 
           <span class="pr2">

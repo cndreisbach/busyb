@@ -32,7 +32,7 @@
 </div>
 {% endfor %}
 
-<form method="POST" action="{% url 'new_note' task_id=task.hashid %}" class="mv3">
+<form method="POST" action="{% url 'get_or_create_task_notes' task_id=task.hashid %}" class="mv3">
   {% csrf_token %}
   {{ note_form.as_p }}
   <button type="submit">Add note</button>

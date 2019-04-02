@@ -16,6 +16,13 @@ from django.core.serializers import serialize
 import json
 
 
+def get_task_or_404(request, task_id):
+    task = request.user.tasks.with_hashid(task_id)
+    if task is None:
+        raise Http404('No task matches the given query.')
+    return task
+
+
 def index(request):
     if request.user.is_authenticated:
         return redirect('task_list')
@@ -111,12 +118,18 @@ class EditTaskView(LoginRequiredMixin, View):
             })
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['GET', 'POST'])
 @login_required
-def new_note(request, task_id):
+def get_or_create_task_notes(request, task_id):
     task = request.user.tasks.with_hashid(task_id)
     if task is None:
         raise Http404('No task matches the given query.')
+
+    # If this is a GET request, we're calling it via Ajax and
+    # should return JSON.
+    if request.method == "GET":
+        notes = [note.to_dict() for note in task.notes.all()]
+        return JsonResponse({"notes": notes})
 
     form = NoteForm(request.POST)
 

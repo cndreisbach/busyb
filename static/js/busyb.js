@@ -8,31 +8,74 @@ function qs (selector) {
   return document.querySelectorAll(selector)
 }
 
+function checkElementTypeAndClass (element, elementType, className) {
+  return (element && element.nodeName === elementType.toUpperCase() &&
+      (!className || element.classList.contains(className)))
+}
+
+function markTaskComplete (taskHashid) {
+  const csrftoken = Cookies.get('csrftoken')
+
+  fetch(`/tasks/{taskHashid}/complete/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' }
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw Error(response.statusText)
+      }
+      return response.json()
+    })
+    .then(function (responseData) {
+      if (responseData.complete) {
+        let task = q(`#task-${responseData.id}`)
+        task.remove()
+      }
+    })
+}
+
+function toggleTaskNotes (taskHashid) {
+  const taskNode = q(`#task-${taskHashid}`)
+  const notesNode = taskNode.querySelector('.notes')
+
+  if (notesNode) {
+    taskNode.removeChild(notesNode)
+    return
+  }
+
+  fetch(`/tasks/${taskHashid}/notes/`, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+    .then(response => response.json())
+    .then(responseData => {
+      const notesDiv = document.createElement('div')
+      notesDiv.classList.add('notes')
+      for (let note of responseData.notes) {
+        let noteDiv = document.createElement('div')
+        noteDiv.classList.add('mv2')
+        noteDiv.id = `note-${note.id}`
+        noteDiv.innerHTML = `<div>${note.text}</div><div>${note.created_at}</div>`
+        notesDiv.appendChild(noteDiv)
+      }
+
+      taskNode.appendChild(notesDiv)
+    })
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   const taskList = q('#task-list')
   taskList.addEventListener('submit', function (event) {
-    if (event.target && event.target.nodeName === 'FORM' &&
-      event.target.classList.contains('mark-task-complete')) {
+    if (checkElementTypeAndClass(event.target, 'form', 'mark-task-complete')) {
       event.preventDefault()
       const form = event.target
-      const csrftoken = Cookies.get('csrftoken')
+      markTaskComplete(form.dataset['taskHashid'])
+    }
+  })
 
-      fetch(form.action, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' }
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw Error(response.statusText)
-          }
-          return response.json()
-        })
-        .then(function (responseData) {
-          if (responseData.complete) {
-            let task = q(`#task-${responseData.id}`)
-            task.remove()
-          }
-        })
+  taskList.addEventListener('click', function (event) {
+    if (checkElementTypeAndClass(event.target, 'a', 'task-notes-link')) {
+      event.preventDefault()
+      toggleTaskNotes(event.target.dataset['taskHashid'])
     }
   })
 

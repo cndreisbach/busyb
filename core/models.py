@@ -49,7 +49,12 @@ class Task(models.Model):
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     due_on = models.DateField("Due by", null=True, blank=True)
-    show_on = models.DateField("Hide until", null=True, blank=True, help_text="This task will not be shown under current tasks until this date.")
+    show_on = models.DateField(
+        "Hide until",
+        null=True,
+        blank=True,
+        help_text=
+        "This task will not be shown under current tasks until this date.")
 
     @property
     def hashid(self):
@@ -108,6 +113,9 @@ class Note(models.Model):
         to=Task, related_name='notes', on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(null=True, auto_now_add=True)
+
+    def to_dict(self):
+        return {"pk": self.pk, "text": self.text, "created_at": self.created_at}
 
 
 class Tag(models.Model):
