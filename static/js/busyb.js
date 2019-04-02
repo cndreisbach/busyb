@@ -1,4 +1,7 @@
-/* globals fetch, Cookies, deepmerge */
+/* globals fetch */
+
+const Cookies = require('js-cookie')
+const deepmerge = require('deepmerge')
 
 function q (selector) {
   return document.querySelector(selector)
@@ -25,7 +28,7 @@ function htmlToNodes (htmlString) {
 }
 
 function markTaskComplete (taskHashid) {
-  request(`/tasks/{taskHashid}/complete/`, { method: 'POST' })
+  request(`/tasks/${taskHashid}/complete/`, { method: 'POST' })
     .then(response => {
       if (!response.ok) {
         throw Error(response.statusText)
