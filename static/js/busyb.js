@@ -1,25 +1,31 @@
-/* globals fetch, Cookies */
+/* globals fetch, Cookies, deepmerge */
 
 function q (selector) {
   return document.querySelector(selector)
 }
 
-function qs (selector) {
-  return document.querySelectorAll(selector)
-}
-
 function checkElementTypeAndClass (element, elementType, className) {
   return (element && element.nodeName === elementType.toUpperCase() &&
-      (!className || element.classList.contains(className)))
+            (!className || element.classList.contains(className)))
+}
+
+function request (url, options) {
+  if (!options) {
+    options = {}
+  }
+  const defaultOptions = {
+    headers: { 'X-CSRFToken': Cookies.get('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' }
+  }
+
+  return fetch(url, deepmerge(defaultOptions, options))
+}
+
+function htmlToNodes (htmlString) {
+  return document.createRange().createContextualFragment(htmlString)
 }
 
 function markTaskComplete (taskHashid) {
-  const csrftoken = Cookies.get('csrftoken')
-
-  fetch(`/tasks/{taskHashid}/complete/`, {
-    method: 'POST',
-    headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' }
-  })
+  request(`/tasks/{taskHashid}/complete/`, { method: 'POST' })
     .then(response => {
       if (!response.ok) {
         throw Error(response.statusText)
@@ -43,9 +49,7 @@ function toggleTaskNotes (taskHashid) {
     return
   }
 
-  fetch(`/tasks/${taskHashid}/notes/`, {
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-  })
+  request(`/tasks/${taskHashid}/notes/`)
     .then(response => response.json())
     .then(responseData => {
       const notesDiv = document.createElement('div')
@@ -82,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const newTaskForm = q('#new-task-form')
   newTaskForm.addEventListener('submit', function (event) {
     event.preventDefault()
-    const csrftoken = Cookies.get('csrftoken')
 
     const taskField = q('#task-field')
     const body = {
@@ -90,11 +93,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     taskField.value = ''
 
-    fetch(newTaskForm.action, {
+    request(newTaskForm.action, {
       method: 'POST',
       headers: {
-        'X-CSRFToken': csrftoken,
-        'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
@@ -106,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return response.text()
       })
       .then(text => {
-        const taskFragment = document.createRange().createContextualFragment(text)
+        const taskFragment = htmlToNodes(text)
         q('#task-list').appendChild(taskFragment)
       })
   })
