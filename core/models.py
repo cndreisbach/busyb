@@ -8,9 +8,19 @@ from django.utils import timezone
 from core.hashids import hashids
 from core.textutils import get_hashtags
 
+import uuid
+
 
 class User(AbstractUser):
-    pass
+    api_token = models.UUIDField(unique=True, null=True)
+
+    def generate_api_token(self, force=False):
+        if not self.api_token or force:
+            self.api_token = uuid.uuid4()
+
+    def save(self, *args, **kwargs):
+        self.generate_api_token()
+        super().save(*args, **kwargs)
 
 
 class TaskQuerySet(models.QuerySet):
@@ -106,6 +116,20 @@ class Task(models.Model):
             tag, _ = Tag.objects.get_or_create(text=tag_text)
             tags.append(tag)
         self.tags.set(tags)
+
+    def to_dict(self):
+        return {
+            "pk": self.pk,
+            "hashid": self.hashid,
+            "owner": str(self.owner),
+            "description": self.description,
+            "due_on": self.due_on,
+            "hide_until": self.show_on,
+            "completed_at": self.completed_at,
+            "complete": self.is_complete(),
+            "future": self.is_future(),
+            "current": self.is_current(),
+        }
 
 
 class Note(models.Model):
