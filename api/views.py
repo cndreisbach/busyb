@@ -29,11 +29,24 @@ def get_user_from_token(request):
     return AnonymousUser()
 
 
+def parse_data(request):
+    if request.body:
+        request.data = json.loads(request.body)
+
+
 class APIView(View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         check_user(request)
+        try:
+            parse_data(request)
+        except json.JSONDecodeError:
+            return JsonResponse({
+                "status": "error",
+                "message": "bad request"
+            },
+                                status=400)
         if not request.user.is_authenticated:
             return JsonResponse({
                 "status": "error",
@@ -51,8 +64,7 @@ class TaskList(APIView):
         return JsonResponse({"status": "ok", "data": tasks_data})
 
     def post(self, request):
-        task_data = json.loads(request.body)
-        form = TaskForm(data=task_data)
+        form = TaskForm(data=request.data)
 
         if form.is_valid():
             task = form.save(commit=False)
@@ -82,10 +94,8 @@ class TaskDetail(APIView):
 
     def patch(self, request, hashid):
         task = get_task_or_404(request, hashid)
-        task_data = json.loads(request.body)
-
-        if task_data.get('description'):
-            task.description = task_data['description']
+        if request.data.get('description'):
+            task.description = request.data['description']
             task.save()
 
         return JsonResponse({"status": "ok", "data": task.to_dict()})
