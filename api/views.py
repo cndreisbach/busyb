@@ -8,6 +8,7 @@ from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
 
 from core.models import User
+from core.views import get_task_or_404
 from api.forms import TaskForm
 
 
@@ -72,15 +73,15 @@ class TaskList(APIView):
 
 class TaskDetail(APIView):
 
-    def get(self, request, pk):
-        task = get_object_or_404(request.user.tasks, pk=pk)
+    def get(self, request, hashid):
+        task = get_task_or_404(request, hashid)
         return JsonResponse({"status": "ok", "data": task.to_dict()})
 
-    def put(self, request, pk):
-        return self.patch(request, pk)
+    def put(self, request, hashid):
+        return self.patch(request, hashid)
 
-    def patch(self, request, pk):
-        task = get_object_or_404(request.user.tasks, pk=pk)
+    def patch(self, request, hashid):
+        task = get_task_or_404(request, hashid)
         task_data = json.loads(request.body)
 
         if task_data.get('description'):
@@ -89,7 +90,7 @@ class TaskDetail(APIView):
 
         return JsonResponse({"status": "ok", "data": task.to_dict()})
 
-    def delete(self, request, pk):
-        task = get_object_or_404(request.user.tasks, pk=pk)
+    def delete(self, request, hashid):
+        task = get_task_or_404(request, hashid)
         task.delete()
         return JsonResponse({"status": "ok", "data": {"deleted": True}})

@@ -17,17 +17,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include, register_converter
 from core import views as core_views
-
-
-class HashidConverter:
-    regex = '[a-zA-Z0-9]{4,}'
-
-    def to_python(self, value):
-        return value
-
-    def to_url(self, value):
-        return value
-
+from core.hashids import HashidConverter
 
 register_converter(HashidConverter, 'hashid')
 

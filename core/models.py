@@ -119,7 +119,6 @@ class Task(models.Model):
 
     def to_dict(self):
         return {
-            "pk": self.pk,
             "hashid": self.hashid,
             "owner": str(self.owner),
             "description": self.description,
