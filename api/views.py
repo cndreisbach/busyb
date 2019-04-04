@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
 
-from core.models import Task, User
+from core.models import User
 from api.forms import TaskForm
 
 
@@ -65,7 +65,7 @@ class TaskList(APIView):
 
         return JsonResponse({
             "status": "error",
-            "errors": form.errors
+            "errors": form.errors.get_json_data()
         },
                             status=400)
 
@@ -75,6 +75,9 @@ class TaskDetail(APIView):
     def get(self, request, pk):
         task = get_object_or_404(request.user.tasks, pk=pk)
         return JsonResponse({"status": "ok", "data": task.to_dict()})
+
+    def put(self, request, pk):
+        return self.patch(request, pk)
 
     def patch(self, request, pk):
         task = get_object_or_404(request.user.tasks, pk=pk)
