@@ -101,7 +101,7 @@ class Task(models.Model):
             self.save()
         return self
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super().save(*args, **kwargs)
         self.parse_tags()
 

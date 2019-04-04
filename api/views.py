@@ -1,6 +1,6 @@
-from django.shortcuts import render
-from core.models import Task, User
 from django.http import JsonResponse
+
+from core.models import User
 
 
 def get_user(request):
@@ -12,6 +12,7 @@ def get_user(request):
             return user
         except User.DoesNotExist:
             return None
+    return None
 
 
 # Create your views here.
