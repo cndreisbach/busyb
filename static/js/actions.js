@@ -59,6 +59,6 @@ function toggleTaskNotes (taskHashid) {
 
 module.exports = {
   toggleTaskNotes: toggleTaskNotes,
-  markTaskComplete: markTaskComplete
-
+  markTaskComplete: markTaskComplete,
+  request: request
 }

@@ -5,8 +5,10 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
+from django.shortcuts import get_object_or_404
 
 from core.models import Task, User
+from api.forms import TaskForm
 
 
 def check_user(request):
@@ -26,10 +28,10 @@ def get_user_from_token(request):
     return AnonymousUser()
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class TaskList(View):
+class APIView(View):
 
-    def get(self, request):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
         check_user(request)
         if not request.user.is_authenticated:
             return JsonResponse({
@@ -37,25 +39,23 @@ class TaskList(View):
                 "message": "unauthorized",
             },
                                 status=401)
+        return super().dispatch(request, *args, **kwargs)
 
+
+class TaskList(APIView):
+
+    def get(self, request):
         tasks = request.user.tasks.all()
         tasks_data = [task.to_dict() for task in tasks]
         return JsonResponse({"status": "ok", "data": tasks_data})
 
     def post(self, request):
-        check_user(request)
-        if not request.user.is_authenticated:
-            return JsonResponse({
-                "status": "error",
-                "message": "unauthorized",
-            },
-                                status=401)
-
         task_data = json.loads(request.body)
+        form = TaskForm(data=task_data)
 
-        if task_data.get('description'):
-            task = Task(
-                owner=request.user, description=task_data['description'])
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.owner = request.user
             task.save()
             return JsonResponse({
                 "status": "ok",
@@ -65,21 +65,28 @@ class TaskList(View):
 
         return JsonResponse({
             "status": "error",
-            "errors": {
-                "description": "cannot be blank"
-            }
+            "errors": form.errors
         },
                             status=400)
 
 
-def task_detail(request, pk):
-    check_user(request)
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "status": "error",
-            "message": "unauthorized",
-        },
-                            status=401)
+class TaskDetail(APIView):
 
-    task = request.user.tasks.get(pk=pk)
-    return JsonResponse({"status": "ok", "data": task.to_dict()})
+    def get(self, request, pk):
+        task = get_object_or_404(request.user.tasks, pk=pk)
+        return JsonResponse({"status": "ok", "data": task.to_dict()})
+
+    def patch(self, request, pk):
+        task = get_object_or_404(request.user.tasks, pk=pk)
+        task_data = json.loads(request.body)
+
+        if task_data.get('description'):
+            task.description = task_data['description']
+            task.save()
+
+        return JsonResponse({"status": "ok", "data": task.to_dict()})
+
+    def delete(self, request, pk):
+        task = get_object_or_404(request.user.tasks, pk=pk)
+        task.delete()
+        return JsonResponse({"status": "ok", "data": {"deleted": True}})
